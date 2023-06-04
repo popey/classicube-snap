@@ -1,0 +1,68 @@
+name: classicube
+base: core22 # the base snap is the execution environment for this snap
+summary: Custom Minecraft Classic / ClassiCube client
+adopt-info: classicube
+description: |
+  ClassiCube is a custom Minecraft Classic compatible client written in C
+  that works on Windows, macOS, Linux, iOS, Android, FreeBSD, NetBSD, OpenBSD, 
+  Solaris, Haiku, IRIX, 3DS (unfinished), PSP (unfinished), and in a web browser.
+  It is not affiliated with (or supported by) Mojang AB, Minecraft, or Microsoft 
+  in any way.
+
+grade: stable
+confinement: strict
+
+parts:
+  classicube:
+    plugin: make
+    source: https://github.com/UnknownShadow200/ClassiCube.git
+    override-pull: |
+      #set -x
+      snapcraftctl pull
+      last_committed_tag="$(git describe --tags --abbrev=0)"
+      last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
+      #last_released_tag="$(snap info $CRAFT_PROJECT_NAME | awk '$1 == "latest/beta:" { print $2 }')"
+      last_released_tag=0
+      if [ "${last_committed_tag_ver}" != "${last_released_tag}" ]; then
+        git fetch
+        git checkout "${last_committed_tag}"
+        cd ../src
+        git checkout "${last_committed_tag}"
+      fi
+      craftctl set version="$(git describe --tags | cut -d- -f2-4 )"
+    override-build: |
+      #set -x
+      cd src/
+      gcc *.c -o ClassiCube -rdynamic -lm -lpthread -lX11 -lXi -lGL -ldl
+      cp ClassiCube $CRAFT_PART_INSTALL
+    build-packages:
+      - libx11-dev
+      - libxi-dev
+      - libgl1-mesa-dev
+    stage-packages:
+      - libx11-6
+      - libxi6
+      - libgl1
+      - libxcb1
+      - libxext6
+      - libglvnd0
+      - libglx0
+      - libxau6
+      - libxdmcp6
+      - libbsd0
+      - libmd0
+      - libcurl4
+
+apps:
+  classicube:
+    command: ClassiCube
+    plugs:
+      - opengl
+      - audio-playback
+      - home
+      - x11
+      - desktop
+      - desktop-legacy
+      - joystick
+      - network
+      - network-bind
