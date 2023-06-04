@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=ClassiCube
+Comment=A custom Minecraft Classic compatible client
+Exec=classicube
+Icon=${SNAP}/meta/gui/classicube.png
+Terminal=false
+Type=Application
+Categories=Game;Simulation
