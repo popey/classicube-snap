@@ -34,7 +34,7 @@ parts:
       #set -x
       cd src/
       gcc *.c -o ClassiCube -rdynamic -lm -lpthread -lX11 -lXi -lGL -ldl
-      cp ClassiCube $CRAFT_PART_INSTALL
+      cp ../credits.txt ../license.txt ClassiCube $CRAFT_PART_INSTALL
     build-packages:
       - libx11-dev
       - libxi-dev
