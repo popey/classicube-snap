@@ -11,7 +11,10 @@ description: |
 
 grade: stable
 confinement: strict
-
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+  - build-on: armhf
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
