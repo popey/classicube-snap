@@ -147,17 +147,17 @@ parts:
       - libbsd0
       - libmd0
       - libcurl4
-  # cleanup:
-  #   after: [classicube]
-  #   plugin: nil
-  #   build-snaps:
-  #     - gaming-graphics-core22/kisak-fresh/candidate
-  #   override-prime: |
-  #     set -eux
-  #     cd /snap/gaming-graphics-core22/current/usr/lib
-  #     find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/{} \;
-  #     cd /snap/gaming-graphics-core22/current/usr/share
-  #     find . -type f,l -exec rm -f $CRAFT_PRIME/usr/share/{} \;
+  cleanup:
+    after: [classicube]
+    plugin: nil
+    build-snaps:
+      - gaming-graphics-core22/kisak-fresh/candidate
+    override-prime: |
+      set -eux
+      cd /snap/gaming-graphics-core22/current/usr/lib
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/{} \;
+      cd /snap/gaming-graphics-core22/current/usr/share
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/share/{} \;
 
 apps:
   classicube:
