@@ -3,6 +3,8 @@
 [![classicube](https://snapcraft.io/classicube/badge.svg)](https://snapcraft.io/classicube)
 [![classicube](https://snapcraft.io/classicube/trending.svg?name=0)](https://snapcraft.io/classicube)
 
+![Alt](https://repobeats.axiom.co/api/embed/c08cdf8d46a1dd68d5c93f0e5f1013f0038528e9.svg "Repobeats analytics image")
+
 ClassiCube is a custom Minecraft Classic compatible client written in C that works on Windows, macOS, Linux, iOS, Android, FreeBSD, NetBSD, OpenBSD, Solaris, Haiku, IRIX, 3DS (unfinished), PSP (unfinished), and in a web browser.
 
 **It is not affiliated with (or supported by) Mojang AB, Minecraft, or Microsoft in any way.**
