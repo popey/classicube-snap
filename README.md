@@ -1,5 +1,6 @@
 # classicube-snap
 
+[![classicube](https://github.com/popey/classicube-snap/actions/workflows/test-snap-can-build.yml/badge.svg)](https://github.com/popey/classicube-snap/actions)
 [![classicube](https://snapcraft.io/classicube/badge.svg)](https://snapcraft.io/classicube)
 [![classicube](https://snapcraft.io/classicube/trending.svg?name=0)](https://snapcraft.io/classicube)
 
