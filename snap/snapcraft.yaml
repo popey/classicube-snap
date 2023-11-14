@@ -17,59 +17,35 @@ architectures:
   # - build-on: armhf
 
 layout:
-  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
-    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
-  /usr/share/alsa:
-    bind: $SNAP/usr/share/alsa
-  # https://discourse.ubuntu.com/t/the-graphics-core20-snap-interface/23000
-  /usr/share/libdrm:
-    bind: $SNAP/graphics/usr/share/libdrm
   /usr/share/drirc.d:
-    bind: $SNAP/graphics/usr/share/drirc.d
-  /usr/share/glvnd/egl_vendor.d:
-    bind: $SNAP/graphics/usr/share/glvnd/egl_vendor.d
-  /usr/lib/x86_64-linux-gnu/alsa-lib:
-    bind: $SNAP/usr/lib/x86_64-linux-gnu/alsa-lib
-  /usr/share/X11/xkb:
-    bind: $SNAP/usr/share/X11/xkb
+    bind: $SNAP/usr/share/drirc.d
+  /usr/lib/x86_64-linux-gnu/dri:
+    bind: $SNAP/usr/lib/x86_64-linux-gnu/dri
+  /usr/share/vulkan:
+    bind: $SNAP/usr/share/vulkan
   /usr/lib/x86_64-linux-gnu/libvulkan_intel.so:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libvulkan_intel.so
-  /usr/lib/i386-linux-gnu/libvulkan_intel.so:
-    symlink: $SNAP/graphics/usr/lib/i386-linux-gnu/libvulkan_intel.so
+    bind-file: $SNAP/usr/lib/x86_64-linux-gnu/libvulkan_intel.so
   /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libvulkan_lvp.so
-  /usr/lib/i386-linux-gnu/libvulkan_lvp.so:
-    symlink: $SNAP/graphics/usr/lib/i386-linux-gnu/libvulkan_lvp.so
+    bind-file: $SNAP/usr/lib/x86_64-linux-gnu/libvulkan_lvp.so
   /usr/lib/x86_64-linux-gnu/libvulkan_radeon.so:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libvulkan_radeon.so
-  /usr/lib/i386-linux-gnu/libvulkan_radeon.so:
-    symlink: $SNAP/graphics/usr/lib/i386-linux-gnu/libvulkan_radeon.so
-  /usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0.0.0:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0.0.0
-  /usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0.0.0
-  /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
-  /usr/lib/x86_64-linux-gnu/libxcb.so:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
-  /usr/lib/x86_64-linux-gnu/libxcb.so.1:
-    symlink: $SNAP/graphics/usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
-  /etc/ld.so.cache:
-    bind-file: $SNAP_DATA/etc/ld.so.cache
-  /etc/fonts:
-    bind: $SNAP/etc/fonts
-
-plugs:
-  gaming-mesa:
-    interface: content
-    target: $SNAP/graphics
-    default-provider: gaming-graphics-core22
-
-environment:
-  LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/:$SNAP/graphics/lib/i386-linux-gnu:$SNAP/graphics/usr/lib:$SNAP/usr/lib/i386-linux-gnu:$SNAP/lib/i386-linux-gnu:$SNAP/usr/lib/i386-linux-gnu/pulseaudio${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-  LIBGL_DRIVERS_PATH: $SNAP/graphics/usr/lib/i386-linux-gnu/dri:$SNAP/graphics/usr/lib/x86_64-linux-gnu/dri:${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}
+    bind-file: $SNAP/usr/lib/x86_64-linux-gnu/libvulkan_radeon.so
 
 parts:
+  libs:
+    plugin: nil
+    stage-packages:
+      - libspeechd2
+      - mesa-va-drivers
+      - mesa-vulkan-drivers
+      - vulkan-tools
+    prime:
+      - usr/lib/*/libspeech*
+      - usr/lib/*/dri
+      - usr/lib/*/libVk*
+      - usr/lib/*/libvulkan*
+      - usr/lib/*/libxcb-randr*
+      - usr/share/vulkan
+      - usr/bin/vk*
   launcher:
     plugin: dump
     source: snap/local
@@ -148,16 +124,16 @@ parts:
       - libmd0
       - libcurl4
   cleanup:
-    after: [classicube]
+    after: [ classicube ]
     plugin: nil
-    build-snaps:
-      - gaming-graphics-core22/kisak-fresh/candidate
+    build-snaps:  [core22]
     override-prime: |
       set -eux
-      cd /snap/gaming-graphics-core22/current/usr/lib
-      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/{} \;
-      cd /snap/gaming-graphics-core22/current/usr/share
-      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/share/{} \;
+      for snap in "core22"; do
+          cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      done
+      cd /snap/gnome-42-2204/current
+      find . -type f,l -exec rm -f $SNAPCRAFT_PRIME/{} \;
 
 apps:
   classicube:
@@ -168,6 +144,7 @@ apps:
       GTK_PATH: $SNAP/lib/gtk-2.0
       GTK_DATA_PREFIX: $SNAP
       XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
+      VK_ICD_FILENAMESr: /var/lib/snapd/lib/vulkan/icd.d/nvidia_icd.json:$SNAP/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:$SNAP/usr/share/vulkan/icd.d/intel_icd.x86_64.json
     command: bin/launcher
     plugs:
       - joystick
