@@ -89,8 +89,7 @@ parts:
       snapcraftctl pull
       last_committed_tag="$(git describe --tags --abbrev=0)"
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
-      #last_released_tag="$(snap info $CRAFT_PROJECT_NAME | awk '$1 == "latest/beta:" { print $2 }')"
-      last_released_tag=0
+      last_released_tag="$(snap info $CRAFT_PROJECT_NAME | awk '$1 == "latest/beta:" { print $2 }')"
       if [ "${last_committed_tag_ver}" != "${last_released_tag}" ]; then
         git fetch
         git checkout "${last_committed_tag}"
