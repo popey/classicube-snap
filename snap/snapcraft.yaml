@@ -1,5 +1,5 @@
 name: classicube
-base: core22
+base: core24
 summary: Custom Minecraft Classic / ClassiCube client
 adopt-info: classicube
 description: |
@@ -11,24 +11,11 @@ description: |
 
 grade: stable
 confinement: strict
-architectures:
-  - build-on: amd64
-  - build-on: arm64
-  - build-on: armhf
+platforms:
+  amd64:
+  arm64:
+  armhf:
 
-layout:
-  /usr/share/drirc.d:
-    bind: $SNAP/usr/share/drirc.d
-  /usr/lib/x86_64-linux-gnu/dri:
-    bind: $SNAP/usr/lib/x86_64-linux-gnu/dri
-  /usr/share/vulkan:
-    bind: $SNAP/usr/share/vulkan
-  /usr/lib/x86_64-linux-gnu/libvulkan_intel.so:
-    bind-file: $SNAP/usr/lib/x86_64-linux-gnu/libvulkan_intel.so
-  /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so:
-    bind-file: $SNAP/usr/lib/x86_64-linux-gnu/libvulkan_lvp.so
-  /usr/lib/x86_64-linux-gnu/libvulkan_radeon.so:
-    bind-file: $SNAP/usr/lib/x86_64-linux-gnu/libvulkan_radeon.so
 
 parts:
   libs:
@@ -56,7 +43,7 @@ parts:
     build-packages:
       - libasound2-dev
     stage-packages:
-      - libasound2
+      - libasound2t64
       - libasound2-plugins
       - yad
     stage:
@@ -70,23 +57,23 @@ parts:
       - etc/asound.conf
       - snap/command-chain/alsa-launch
       - usr/bin/yad*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libasound*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libdnsfile*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libFLAC*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libjack*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libpulse*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libsamplerate*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libspeex*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libvorbis*
-      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libasound*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdnsfile*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libFLAC*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libjack*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libsamplerate*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libspeex*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvorbis*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio
   classicube:
     plugin: make
     after: [alsa-mixin]
     source: https://github.com/ClassiCube/ClassiCube.git
     override-pull: |
       #set -x
-      snapcraftctl pull
+      craftctl default
       last_committed_tag="$(git describe --tags --abbrev=0)"
       last_released_tag="$(snap info $CRAFT_PROJECT_NAME | awk '$1 == "latest/beta:" { print $2 }')"
       if [ "${last_committed_tag}" != "${last_released_tag}" ]; then
@@ -98,17 +85,16 @@ parts:
       craftctl set version="$(git describe --tags)"
     override-build: |
       #set -x
-      cd src/
-      gcc *.c -o ClassiCube -rdynamic -lm -lpthread -lX11 -lXi -lGL -ldl
-      cp ../credits.txt ../license.txt ClassiCube $CRAFT_PART_INSTALL
+      make RELEASE=1
+      cp credits.txt license.txt ClassiCube $CRAFT_PART_INSTALL
     build-packages:
       - libx11-dev
       - libxi-dev
-      - libgl1-mesa-dev
+      - libgl-dev
       - libasound2-dev
     stage-packages:
       - libopenal1
-      - libasound2
+      - libasound2t64
       - libx11-6
       - libxi6
       - libgl1
@@ -120,17 +106,17 @@ parts:
       - libxdmcp6
       - libbsd0
       - libmd0
-      - libcurl4
+      - libcurl4t64
   cleanup:
     after: [ classicube ]
     plugin: nil
-    build-snaps:  [core22]
+    build-snaps:  [core24]
     override-prime: |
       set -eux
-      for snap in "core22"; do
+      for snap in "core24"; do
           cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
       done
-      cd /snap/gnome-42-2204/current
+      cd /snap/gnome-46-2404/current
       find . -type f,l -exec rm -f $SNAPCRAFT_PRIME/{} \;
 
 apps:
@@ -142,7 +128,7 @@ apps:
       GTK_PATH: $SNAP/lib/gtk-2.0
       GTK_DATA_PREFIX: $SNAP
       XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
-      VK_ICD_FILENAMESr: /var/lib/snapd/lib/vulkan/icd.d/nvidia_icd.json:$SNAP/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:$SNAP/usr/share/vulkan/icd.d/intel_icd.x86_64.json
+      VK_ICD_FILENAMES: /var/lib/snapd/lib/vulkan/icd.d/nvidia_icd.json:$SNAP/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:$SNAP/usr/share/vulkan/icd.d/intel_icd.x86_64.json
     command: bin/launcher
     plugs:
       - joystick
